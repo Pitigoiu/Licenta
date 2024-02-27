@@ -1,23 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
-
+import NavBar from "./NavBar";
+import Carousel from "./Carousel";
+import MainBody from "./MainBody";
+import Add from "./Add";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Manga from "./Manga";
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<MainBody />} />
+          <Route path="/manga" element={<Manga />} />
+        </Routes>
+      </BrowserRouter>
+      {/* //{" "}
+      <BrowserRouter>
+        //{" "}
+        <Routes>
+
+          <Route path="/" element={<NavBar />}>
+            // <Route path="/" exact element={<MainBody />} />
+            // <Route path="/about" element={<Carousel />} />
+            // <Route path="/contact" element={<MainBody />} />
+            // <Route path="/other" element={<MainBody />} />
+  
+          </Route>
+
+        </Routes>
+ */}
+      {/* </BrowserRouter> */}
     </div>
   );
 }
