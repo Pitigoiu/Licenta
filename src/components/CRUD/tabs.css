@@ -1,0 +1,27 @@
+.heading {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+  .tab-item {
+    display: inline-flex;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    color: #fff;
+    background: #987ba3;
+    border-radius: 10px;
+    margin-right: 5px;
+  }
+  
+  .tab-item.active {
+    border-color: #000;
+    background: #365553;
+    color: #fff;
+  }
+  
+ 
