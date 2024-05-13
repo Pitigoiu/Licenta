@@ -1,42 +1,7 @@
 import React, { useEffect, useState } from "react";
-import Poza from "../image/untitled.png";
-import Poza1 from "../image/download.png";
-import Poza2 from "../image/download1.png";
-import Poza3 from "../image/download2.png";
-import { db, storage } from "../firebase/config";
-import {
-  addDoc,
-  collection,
-  onSnapshot,
-  doc,
-  setDoc,
-  query,
-  orderBy,
-  limit,
-  getDocs,
-} from "firebase/firestore";
-import MainBody from "./MainBody";
-import useBook from "./hooks/useBook";
+import { db } from "../firebase/config";
+import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { Link } from "react-router-dom";
-
-const images = [
-  Poza1,
-  Poza3,
-  Poza2,
-  Poza,
-  Poza1,
-  Poza2,
-  Poza3,
-  Poza,
-  Poza1,
-  Poza2,
-  Poza3,
-  Poza,
-  Poza1,
-  Poza2,
-  Poza3,
-  Poza,
-];
 
 export default function Carousel() {
   const [scrollPosition, setScrollPosition] = useState(-300);
@@ -91,7 +56,7 @@ export default function Carousel() {
         {popular &&
           popular.map((pop, index) => (
             <div className="mr-4 ">
-              <Link to={`manga/${pop.Id}`}>
+              <a href={`/manga/${pop.Id}`}>
                 <img
                   key={index}
                   src={pop.ImageUrl}
@@ -101,7 +66,7 @@ export default function Carousel() {
                 <div className="bg-black text-center text-semibold text-xl bg-opacity-50 text-white p-2">
                   {pop.Name}
                 </div>
-              </Link>
+              </a>
             </div>
           ))}
       </div>

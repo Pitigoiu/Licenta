@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { doPasswordChange } from "../components/Auth/useAuthContext";
+import { doPasswordChange } from "../Auth/useAuthContext";
 import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { db } from "../../firebase/config";
 import { useNavigate } from "react-router-dom";
 
 export default function PasswordReset() {

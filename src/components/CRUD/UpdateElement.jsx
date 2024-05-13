@@ -71,11 +71,6 @@ export default function UpdateElement() {
     console.log(bookName);
   }, [bookName, linkPoze]);
 
-  const qu = query(
-    collection(db, "Lista Completa"),
-    where("id", "==", `${book}`)
-  );
-
   const handleChapter = async (chapterInfo) => {
     console.log(listId.indexOf(chapterInfo));
     console.log(chapters.at(chapters.find((x) => x === chapterInfo)).exclusive);

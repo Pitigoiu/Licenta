@@ -27,7 +27,7 @@ export default function Manga() {
   const [others, setOthers] = useState([]);
   const path = id.split("-")[0];
   const userData = useUsers(userLoggedIn, currentUser?.email);
-  const [image, setImage] = useState(null);
+
   const [data, setData] = useState([]);
   const [chapterList, setChapterList] = useState([]);
 
@@ -53,58 +53,68 @@ export default function Manga() {
     };
     fetchBooks();
   }, []);
-  const [user, setUser] = useState({});
+
+  const [user, setUser] = useState(null);
   useEffect(() => {
     userData.then((data) => setUser(data));
-
-    async function a() {
-      const docSnap = await getDoc(ref1);
+  }, []);
+  useEffect(() => {
+    async function chapterData() {
       const snap = await getDocs(refChapter);
-      if (docSnap.exists()) {
-        setData(docSnap.data());
-        console.log(docSnap.data());
-      }
       let list = [];
       snap.forEach((doc) => {
         list.push(doc.data());
+        console.log(user);
       });
       setChapterList(list);
-
-      onSnapshot(ref, (snap) => {
-        let list = [];
-        snap.docs.forEach((doc) => {
-          setImage(doc.data());
-          list.push(doc.id);
-        });
-      });
-
-      const query = await getDocs(q);
-      query.forEach((doc) => {
-        setData(doc.data());
-      });
     }
-    a();
+    chapterData();
   }, []);
 
-  const [view, setView] = useState(false);
+  useEffect(() => {
+    const informationBook = async () => {
+      const docSnap = await getDoc(ref1);
+      if (docSnap.exists()) {
+        setData(docSnap.data());
+        // console.log(docSnap.data());
+      }
+    };
+    informationBook();
+  }, []);
+
+  const [viewExclusive, setViewExcluive] = useState({});
 
   useEffect(() => {
-    if (!data) return;
-    if (!user) return;
-    if (
-      userLoggedIn &&
-      image?.permission.find((x) => x === currentUser.email)
-    ) {
-      setView(true);
-    } else if (user?.admin) {
-      setView(true);
-    } else if (data.exclusive == false) setView(true);
-  }, [data, image, others]);
+    function show() {
+      for (let item in chapterList) {
+        console.log(
+          typeof chapterList[item].permission.find(
+            (x) => x === currentUser?.email
+          )
+        );
+        console.log(typeof currentUser?.email);
 
+        if (user?.admin) {
+          setViewExcluive((prev) => ({ ...prev, [item]: true }));
+        } else if (
+          chapterList[item].permission.find((x) => x === currentUser?.email) &&
+          chapterList[item].exclusive
+        ) {
+          setViewExcluive((prev) => ({ ...prev, [item]: true }));
+        }
+        if (!chapterList[item].exclusive) {
+          setViewExcluive((prev) => ({ ...prev, [item]: true }));
+        }
+      }
+    }
+    show();
+  }, []);
+  useEffect(() => {}, [data, user, others, chapterList]);
   const openImage = (url) => {
     window.open(url, "_blank");
+    console.log(viewExclusive);
   };
-  console.log(chapterList);
+
   const handlePayment = async (idChapter) => {
     if (userLoggedIn && chapterList.at(id).permission) {
       let y = doc(db, "Users", `${currentUser.email}`);
@@ -186,12 +196,15 @@ export default function Manga() {
             <h2 className="text-lg font-semibold mb-2">Links</h2>
 
             <ul>
-              {chapterList.map((n) => (
+              {chapterList.map((n, index) => (
                 <li
                   key={n.Id}
                   className="flex items-center text-2xl justify-between"
                 >
-                  {!n.exclusive || view ? (
+                  {/* Creaza o lista prin care sa verifica daca emailul este inclus si dupa afiseaza capitolele
+                   */}
+
+                  {viewExclusive[index] ? (
                     <>
                       <Link to={`/manga/${path}/${n.Id}`}>{n.name}</Link>
                       <>
@@ -212,7 +225,9 @@ export default function Manga() {
                         to={`/manga/${path}/${n.Id}`}
                         className="  disabled opacity-50"
                         style={{ pointerEvents: "none" }}
-                      ></Link>
+                      >
+                        {n.name}
+                      </Link>
 
                       <svg
                         onClick={() => handlePayment(n.Id)}
@@ -223,6 +238,7 @@ export default function Manga() {
                       >
                         <path d="M144 144v48H304V144c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192V144C80 64.5 144.5 0 224 0s144 64.5 144 144v48h16c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H80z" />
                       </svg>
+                      <span>Views: {n.Views}</span>
                     </>
                   )}
                 </li>

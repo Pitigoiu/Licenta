@@ -7,7 +7,7 @@ export default function ShowPanel({ tabs }) {
 
   return (
     <div>
-      <div className="heading">
+      <div className=" sm:flex sm:justify-center sm:mb-12">
         {tabs.map((item, index) => (
           <div
             className={`tab-item ${currentPanel === index ? "active" : ""}`}

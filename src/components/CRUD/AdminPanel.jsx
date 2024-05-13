@@ -8,6 +8,7 @@ import "./tabs.css";
 import useUsers from "../hooks/useUsers";
 import { useAuthContext } from "../Auth/useAuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
+import UpdateManga from "./UpdateManga";
 export default function AdminPanel() {
   const navigate = useNavigate();
   const [user, setUser] = useState("");
@@ -29,6 +30,7 @@ export default function AdminPanel() {
     { label: "Delete Chapter", content: <DeleteChapter /> },
     { label: "Update Chapter", content: <UpdateElement /> },
     { label: "Add Manga", content: <AddManga /> },
+    { label: "Update Manga", content: <UpdateManga /> },
   ];
   return (
     <div>

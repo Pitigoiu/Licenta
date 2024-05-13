@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import { useAuth } from "../components/Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 import {
   doPasswordReset,
   doSignInWithEmailAndPassword,
   doSignInWithGoogle,
-} from "../components/Auth/useAuthContext";
+} from "../Auth/useAuthContext";
 
 export default function Login() {
   const navigate = useNavigate();

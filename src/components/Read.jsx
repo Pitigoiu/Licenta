@@ -16,18 +16,20 @@ import NestedView from "./comment-section/NestedView";
 import exportId from "./exportId";
 import { useAuth } from "./Auth/AuthContext";
 import useUsers from "./hooks/useUsers";
+import { useAuthContext } from "./Auth/useAuthContext";
 
 export default function Read() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState("");
   const [images, setImages] = useState([]);
   const [listChapter, setListChapter] = useState([]);
   const [chapterData, setChapterData] = useState();
   const { name, chapter } = exportId(location);
-  const [listIdChapters, setListIdChapters] = useState([]);
+
   const [chapterSelected, setChapterSelected] = useState();
   const { currentUser, userLoggedIn } = useAuth();
+
   const userData = useUsers(userLoggedIn, currentUser?.email);
   const list = [];
   let reference = collection(db, `${name}`);
@@ -35,18 +37,21 @@ export default function Read() {
   useEffect(() => {
     userData.then((data) => setUser(data));
   }, []);
-  useEffect(() => {
-    if (!user) return;
-  }, [user]);
+  // useEffect(() => {
+  //   if (!user) return;
+  //   console.log(user);
+  // }, [user]);
 
   useEffect(() => {
     const q = query(reference, orderBy("dataRelease", "desc"));
     getDocs(q).then((data) => setChapterData(data));
-    a();
   }, []);
   useEffect(() => {
     if (!chapterData) return;
-  }, [chapterData]);
+    // if (!user) return;
+    if (!listChapter) return;
+    a();
+  }, [chapterData, user, listChapter]);
   const apasa = async () => {
     const chaterImages = ref(storage, `${name}/${chapter}`);
     const list = [];
@@ -100,14 +105,16 @@ export default function Read() {
     const docSnap = await getDoc(refChap);
     if (docSnap.exists()) {
       console.log(docSnap.data());
-      console.log(user.admin);
+      // console.log(user.admin);
       if (
         !docSnap.data().permission.includes(currentUser?.email) &&
-        docSnap.data().exclusive &&
-        !user.admin
+        docSnap.data().exclusive
       ) {
-        console.log("caca");
-        // return navigate("/");
+        console.log(docSnap.data().permission, docSnap.data().exclusive);
+        if (!user?.admin) {
+          console.log("caca");
+          return navigate("/");
+        }
       }
     }
   };
@@ -170,7 +177,7 @@ export default function Read() {
       setIsPrev(false);
     }
   }, [chapterData]);
-  useEffect(() => {}, [listChapter]);
+  // useEffect(() => {}, [listChapter]);
   return (
     <div className="bg-gray-900 min-h-screen">
       <button className="bg-white  " onClick={apasa}>

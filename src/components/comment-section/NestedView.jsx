@@ -27,15 +27,13 @@ export default function NestedView({ name, chapter, id, manga }) {
   const [loginMess, setLoginMess] = useState("");
   const [showReplies, setShowReplies] = useState({});
   const [user, setUser] = useState("");
-  const [userRef, setUserRef] = useState();
+
   if (manga) {
     const reference = (db, `${name}`, `${chapter}`, "Comments");
   } else {
     const reference = (db, "Lista Completa", `${id}`, "Comments");
   }
   const toggleReplies = (index) => {
-    if (data.at(index).reply1.userProfile === user?.profile)
-      setOriginalCreator(true);
     setShowReplies((prev) => ({
       ...prev,
       [index]: !prev[index],
@@ -148,7 +146,7 @@ export default function NestedView({ name, chapter, id, manga }) {
   };
 
   const [editReply, setEditReply] = useState(false);
-  const [originalCreator, setOriginalCreator] = useState(false);
+
   const handleEditReply = () => {
     setEditReply(!editReply);
   };
@@ -231,6 +229,7 @@ export default function NestedView({ name, chapter, id, manga }) {
       </p>
     );
   }
+  console.log(data);
   return (
     <div className="flex flex-col items-center justify-center  w-2/3">
       <h2 className="text-2xl font-semibold mb-4">Comments</h2>
