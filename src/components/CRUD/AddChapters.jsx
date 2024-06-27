@@ -92,11 +92,11 @@ export default function AddChapters() {
       { numberChapter: number + 1 },
       { merge: true }
     );
-    // setName("");
-    // setChapter("");
-    // setDateRel("");
-    // setPoze([]);
-    // setExclusive(false);
+    setName("");
+    setChapter("");
+    setDateRel("");
+    setPoze([]);
+    setExclusive(false);
   }
 
   useEffect(() => {

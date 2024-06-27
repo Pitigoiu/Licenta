@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import { doCreateuserWithEmailAndPassword } from "../Auth/useAuthContext";
 import { useAuth } from "../Auth/AuthContext";
 import {
   createUserWithEmailAndPassword,
@@ -9,7 +8,7 @@ import {
 } from "firebase/auth";
 import { db, storage } from "../../firebase/config";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 
 function SignUpPage() {
   const [name, setName] = useState("");

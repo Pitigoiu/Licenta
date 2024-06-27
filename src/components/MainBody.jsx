@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { Link } from "react-router-dom";
+import StarRating from "./StarRating";
 
 export default function MainBody() {
   const [loading, setLoading] = useState(false);
@@ -100,6 +101,7 @@ export default function MainBody() {
     console.log(total / 10, pageNumber);
     fetchBooks(page);
   };
+
   return (
     <div>
       <Carousel />
@@ -113,7 +115,7 @@ export default function MainBody() {
                   src={i.ImageUrl}
                   alt="Image missing"
                   className="w-1/2 sm:w-full rounded-lg mb-2 mr-2 sm:mr-0 "
-                  style={{ maxWidth: `200px`, height: "200px" }}
+                  style={{ width: `200px`, height: "200px" }}
                 />
                 <div className="w-1/2 pl-2 sm:w-full overflow-hidden">
                   <div className="text-lg font-semibold mb-1">

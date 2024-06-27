@@ -5,7 +5,6 @@ import { useAuth } from "../Auth/AuthContext";
 import {
   collection,
   doc,
-  getDoc,
   getDocs,
   orderBy,
   query,
@@ -65,7 +64,11 @@ export default function NestedView({ name, chapter, id, manga }) {
 
     await setDoc(setRefDoc, {
       text: newComment,
-      createdAt: new Date().toGMTString(),
+      createdAt: String(
+        new Date(
+          (Math.floor(date / 1000.0) + new Date().getTimezoneOffset()) * 1000
+        )
+      ).slice(0, 21),
       id: date,
       user: user.name,
       userUrl: user.profile,
@@ -100,7 +103,11 @@ export default function NestedView({ name, chapter, id, manga }) {
     e.preventDefault();
     if (newComment.trim() === "") {
       return;
-    } // Prevent adding empty comments
+    }
+    if (!userLoggedIn) {
+      setLoginMess("You have to be logged in to comment");
+      return;
+    }
     const updatedComments = [...comments];
     setComments(updatedComments);
 
@@ -130,7 +137,12 @@ export default function NestedView({ name, chapter, id, manga }) {
           reply1: {
             id: date,
             text: newComment,
-            createdAt: new Date().toGMTString(),
+            createdAt: String(
+              new Date(
+                (Math.floor(date / 1000.0) + new Date().getTimezoneOffset()) *
+                  1000
+              )
+            ).slice(0, 21),
             user: user.name,
             userProfile: user.profile,
           },
@@ -202,7 +214,7 @@ export default function NestedView({ name, chapter, id, manga }) {
   const handleComments = () => {
     setSpinner(!spinner);
     for (let item in data) {
-      if (data.at(item).userUrl === user?.profile) {
+      if (data.at(item).userUrl === user?.profile || user?.admin) {
         setEditState((prevState) => ({
           ...prevState,
           [item]: true, // Toggle the reply state for the clicked comment index
@@ -229,9 +241,9 @@ export default function NestedView({ name, chapter, id, manga }) {
       </p>
     );
   }
-  console.log(data);
+
   return (
-    <div className="flex flex-col items-center justify-center  w-2/3">
+    <div className="flex flex-col items-center justify-center  ">
       <h2 className="text-2xl font-semibold mb-4">Comments</h2>
 
       <form onSubmit={handleSubmit} className="mb-4">
@@ -239,6 +251,8 @@ export default function NestedView({ name, chapter, id, manga }) {
           value={newComment}
           onChange={handleChange}
           placeholder="Add a comment..."
+          cols="50"
+          style={{ resize: "none" }}
           className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
         />
         <button
@@ -252,15 +266,18 @@ export default function NestedView({ name, chapter, id, manga }) {
       <ul className="w-full">
         {data &&
           data.map((com, i) => (
-            <li key={i} className="mb-4">
-              <div className="bg-gray-100 p-4 rounded-md">
+            <li key={i} className="mb-4 sm:">
+              <div className="bg-gray-100 p-4  rounded-md">
                 <div className="flex justify-between items-center">
-                  <img
-                    className="size-14 cursor-pointer"
-                    src={com.userUrl}
-                    onClick={(e) => openImage(com.userUrl)}
-                  />
-                  <div className="font-semibold">{com.user}</div>
+                  <div className="flex items-center">
+                    <img
+                      alt="Missing"
+                      className="size-14 cursor-pointer"
+                      src={com.userUrl}
+                      onClick={(e) => openImage(com.userUrl)}
+                    />
+                    <div className="font-semibold pl-2">{com.user}</div>
+                  </div>
                   <div className="text-sm text-gray-500 pl-2">
                     {com.createdAt}
                   </div>
@@ -298,6 +315,7 @@ export default function NestedView({ name, chapter, id, manga }) {
                       className="flex items-center"
                     >
                       <textarea
+                        style={{ resize: "none" }}
                         value={newComment}
                         onChange={handleChange}
                         placeholder="Add a comment..."
@@ -310,50 +328,63 @@ export default function NestedView({ name, chapter, id, manga }) {
                         Add Comment
                       </button>
                     </form>
+                    {loginMess && (
+                      <p className="text-red-500 mb-4">{loginMess}</p>
+                    )}
                   </div>
                 )}
                 {/* Toggle button for replies */}
                 {com.reply1 ? (
                   <button
                     onClick={() => toggleReplies(i)}
-                    className="text-sm text-blue-500 mt-2 focus:outline-none"
+                    className="text-md font-semibold text-blue-500 mt-2 px-2 focus:outline-none"
                   >
                     {showReplies[i] ? "Hide Replies" : "Show Replies"}
                   </button>
                 ) : null}
                 {/* Replies */}
                 {showReplies[i] && (
-                  <ul className="mt-2">
+                  <ul className="pl-4 mt-2">
                     {com.reply1 && (
                       <li className="mt-2">
-                        <img
-                          className="size-14 cursor-pointer"
-                          src={com.reply1.userProfile}
-                          onClick={(e) => openImage(com.reply1.userProfile)}
-                        />
-                        <div className="font-semibold">{com.reply1.user}</div>
-                        <div className="text-sm text-gray-500">
-                          {com.reply1.createdAt}
-                        </div>
-                        {/* Edit and Delete Buttons */}
-                        <div className="mt-2">{com.reply1.text}</div>
-                        {editStateReply[i] && (
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={handleEditReply}
-                              className="text-blue-600 bg-blue-200 p-1 rounded-md hover:bg-blue-400 hover:text-blue-900 focus:outline-none"
-                            >
-                              Edit
-                            </button>
-
-                            <button
-                              onClick={() => handleDeleteReply(com.id)}
-                              className="text-red-600 bg-red-200 p-1 rounded-md hover:bg-red-400 hover:text-red-900 focus:outline-none"
-                            >
-                              Delete
-                            </button>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center">
+                            <img
+                              alt="Missing"
+                              className="size-14 cursor-pointer"
+                              src={com.reply1.userProfile}
+                              onClick={(e) => openImage(com.reply1.userProfile)}
+                            />
+                            <div className="font-semibold pl-2">
+                              {com.reply1.user}
+                            </div>
                           </div>
-                        )}
+                          <div className="text-sm text-gray-500">
+                            {com.reply1.createdAt}
+                          </div>
+                          {/* Edit and Delete Buttons */}
+
+                          {editStateReply[i] && (
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={handleEditReply}
+                                className="text-blue-600 bg-blue-200 p-1 rounded-md hover:bg-blue-400 hover:text-blue-900 focus:outline-none"
+                              >
+                                Edit
+                              </button>
+
+                              <button
+                                onClick={() => handleDeleteReply(com.id)}
+                                className="text-red-600 bg-red-200 p-1 rounded-md hover:bg-red-400 hover:text-red-900 focus:outline-none"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-2 text-2xl  pl-4">
+                          {com.reply1.text}
+                        </div>
                         {editReply && (
                           <form
                             onSubmit={(e) =>
@@ -362,6 +393,7 @@ export default function NestedView({ name, chapter, id, manga }) {
                             className="flex items-center"
                           >
                             <textarea
+                              style={{ resize: "none" }}
                               value={newComment}
                               onChange={(e) => handleChangeReply(e)}
                               placeholder="Add a comment..."

@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db, storage } from "../../firebase/config";
-import {
-  arrayUnion,
-  collection,
-  doc,
-  onSnapshot,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { collection, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export default function UpdateManga() {

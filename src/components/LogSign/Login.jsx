@@ -4,7 +4,6 @@ import { useAuth } from "../Auth/AuthContext";
 import {
   doPasswordReset,
   doSignInWithEmailAndPassword,
-  doSignInWithGoogle,
 } from "../Auth/useAuthContext";
 
 export default function Login() {

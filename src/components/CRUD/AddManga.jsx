@@ -24,7 +24,6 @@ export default function AddManga() {
   const [releaseDate, setReleaseDate] = useState("");
   const [isDisabled, setIsDisabled] = useState(true);
   const [Id, setID] = useState();
-  //genre should be array of more genres
   const [genre, setGenre] = useState([]);
 
   const [newBook, setNewBook] = useState({});
@@ -84,11 +83,14 @@ export default function AddManga() {
       Author: author,
       FirstRelease: firstRelease,
       ReleaseDate: releaseDate,
+      LastUpdate: releaseDate,
       Genre: genre,
       Status: "ongoing",
       Views: 0,
+      Rating: 0,
+      NrVote: 0,
+      ScoreRating: 0,
     });
-    console.log(newBook);
   }
   const handleGenres = (e) => {
     console.log(genre);
@@ -214,9 +216,13 @@ export default function AddManga() {
                 >
                   <option></option>
                   <option>Fantasy</option>
+                  <option>Action</option>
+                  <option>Sci Fi</option>
                   <option>Adventure</option>
                   <option>Horror</option>
                   <option>Reborn</option>
+                  <option>Comedy</option>
+                  <option>Drama</option>
                 </select>
                 Selected options:
                 {genre &&

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { doPasswordChange, useAuthContext } from "./Auth/useAuthContext";
 import useUsers from "./hooks/useUsers";
 import { doc, updateDoc } from "firebase/firestore";
-import { auth, db, storage } from "../firebase/config";
+import { db, storage } from "../firebase/config";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export default function Profile() {
@@ -33,7 +33,6 @@ export default function Profile() {
     if (!user && !name && !email && !password && !profilePicture) {
       return;
     }
-    console.log("x");
   }, [user, password, email, name]);
 
   const handleName = async (e) => {
@@ -45,9 +44,9 @@ export default function Profile() {
   const handlePasword = async (e) => {
     e.preventDefault();
     try {
-      doPasswordChange(email, password, newPassword);
-      // .then((x) => alert("Parola schimbata cu succes"))
-      // .catch((e) => console.log(e.message));
+      doPasswordChange(email, password, newPassword)
+        .then((x) => alert("Parola schimbata cu succes"))
+        .catch((e) => console.log(e.message));
       if (password === newPassword)
         return alert("The new password can be the same like the last");
       await updateDoc(doc(db, "Users", email), {
@@ -93,8 +92,6 @@ export default function Profile() {
       setBanuti50(!banuti50);
       localStorage.removeItem("banuti");
     }
-
-    console.log(typeof parseInt(localStorage.getItem("banuti")));
   };
   const banuti30L = () => {
     setBanuti30(!banuti30);
@@ -108,8 +105,6 @@ export default function Profile() {
       setBanuti50(!banuti15);
       localStorage.removeItem("banuti");
     }
-
-    console.log(typeof parseInt(localStorage.getItem("banuti")));
   };
   const banuti50L = () => {
     setBanuti50(!banuti50);
@@ -123,8 +118,6 @@ export default function Profile() {
       setBanuti30(!banuti30);
       localStorage.removeItem("banuti");
     }
-
-    console.log(typeof parseInt(localStorage.getItem("banuti")));
   };
 
   return (

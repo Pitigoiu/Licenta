@@ -1,6 +1,6 @@
 import { getDownloadURL, listAll, ref } from "firebase/storage";
 import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate, Navigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { db, storage } from "../firebase/config";
 import {
   collection,
@@ -16,7 +16,6 @@ import NestedView from "./comment-section/NestedView";
 import exportId from "./exportId";
 import { useAuth } from "./Auth/AuthContext";
 import useUsers from "./hooks/useUsers";
-import { useAuthContext } from "./Auth/useAuthContext";
 
 export default function Read() {
   const location = useLocation();
@@ -26,7 +25,8 @@ export default function Read() {
   const [listChapter, setListChapter] = useState([]);
   const [chapterData, setChapterData] = useState();
   const { name, chapter } = exportId(location);
-
+  const manga = localStorage.getItem("Manga");
+  const [loading, setLoading] = useState(localStorage.getItem("Loading"));
   const [chapterSelected, setChapterSelected] = useState();
   const { currentUser, userLoggedIn } = useAuth();
 
@@ -35,38 +35,50 @@ export default function Read() {
   let reference = collection(db, `${name}`);
 
   useEffect(() => {
-    userData.then((data) => setUser(data));
-  }, []);
-  // useEffect(() => {
-  //   if (!user) return;
-  //   console.log(user);
-  // }, [user]);
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
 
-  useEffect(() => {
+    userData.then((data) => setUser(data));
     const q = query(reference, orderBy("dataRelease", "desc"));
     getDocs(q).then((data) => setChapterData(data));
   }, []);
   useEffect(() => {
     if (!chapterData) return;
-    // if (!user) return;
     if (!listChapter) return;
-    a();
+    console.log(loading);
+    if (loading == "true") {
+      loadImage();
+      console.log(loading);
+    }
+    checkPermission();
   }, [chapterData, user, listChapter]);
-  const apasa = async () => {
-    const chaterImages = ref(storage, `${name}/${chapter}`);
+
+  const loadImage = async () => {
+    const chapterImages = ref(storage, `${name}/${chapter}`);
     const list = [];
-    const imageList = await listAll(chaterImages);
+    const imageList = await listAll(chapterImages);
+    imageList.items.sort((a, b) => {
+      let aNum = parseInt(a.name.split(".")[0], 10);
+      let bNum = parseInt(b.name.split(".")[0], 10);
+      return aNum - bNum;
+    });
     for (const item of imageList.items) {
       const imageUrl = await getDownloadURL(item);
       list.push(imageUrl);
     }
-    console.log(name, chapter);
     setImages(list);
+  };
+
+  const setLoadImage = () => {
+    if (loading == true) {
+      localStorage.setItem("Loading", false);
+    } else {
+      localStorage.setItem("Loading", true);
+      setLoading(true);
+    }
+    console.log(loading);
   };
   //change chapter from list
   const changeChapter = (e) => {
-    console.log(e.target.value);
-    console.log(listChapter.find((x) => x.name == e.target.value).Id);
     window.open(
       `/manga/${name}/${listChapter.find((x) => x.name == e.target.value).Id}`,
       "_self"
@@ -79,40 +91,27 @@ export default function Read() {
       listChapter[
         listChapter.indexOf(listChapter.find((x) => x.Id == chapter)) + 1
       ];
-    console.log(
-      listChapter.indexOf(listChapter.find((x) => x.Id == chapter)) + 1
-    );
-    console.log(prevChapter);
-    console.log(listChapter);
+
     window.open(`/manga/${name}/${prevChapter.Id}`, "_self");
   };
   const nextChapter = () => {
-    // let nextChap = listChapter.indexOf(chapter);
-    // console.log(nextChap);
     const nextChapter =
       listChapter[
         listChapter.indexOf(listChapter.find((x) => x.Id == chapter)) - 1
       ];
-    console.log(
-      listChapter.indexOf(listChapter.find((x) => x.Id == chapter)) - 1,
-      chapter
-    );
+
     window.open(`/manga/${name}/${nextChapter.Id}`, "_self");
   };
 
-  const a = async () => {
+  const checkPermission = async () => {
     const refChap = doc(db, `${name}`, `${chapter}`);
     const docSnap = await getDoc(refChap);
     if (docSnap.exists()) {
-      console.log(docSnap.data());
-      // console.log(user.admin);
       if (
         !docSnap.data().permission.includes(currentUser?.email) &&
         docSnap.data().exclusive
       ) {
-        console.log(docSnap.data().permission, docSnap.data().exclusive);
         if (!user?.admin) {
-          console.log("caca");
           return navigate("/");
         }
       }
@@ -126,16 +125,16 @@ export default function Read() {
   const handleScroll = async () => {
     const windowHeight = window.innerHeight;
     const scrolled = window.scrollY;
-    const bodyHeight = document.documentElement.scrollHeight;
 
     const visibleHeight = windowHeight + scrolled;
-    console.log(document.documentElement.offsetHeight);
 
     if (!viewed) {
       if (visibleHeight > document.documentElement.offsetHeight / 2) {
-        console.log(viewed);
         setViewed(true);
         await updateDoc(doc(db, `${name}`, `${chapter}`), {
+          Views: increment(1),
+        });
+        await updateDoc(doc(db, "Lista Completa", `${name}`), {
           Views: increment(1),
         });
       }
@@ -151,7 +150,7 @@ export default function Read() {
 
     chapterData.forEach((doc) => {
       list.push(doc.data());
-      console.log(doc.data());
+
       if (doc.data().Id == chapter) {
         setChapterSelected(doc.data().name);
       }
@@ -159,31 +158,35 @@ export default function Read() {
     setListChapter(list);
 
     const next = list.indexOf(list.find((x) => x.Id == chapter)) + 1;
-    console.log(list.indexOf(list.find((x) => x.Id == chapter)));
+
     const prev = list.indexOf(list.find((x) => x.Id == chapter)) - 1;
-    console.log(next);
-    console.log(prev);
 
     if (prev < 0) {
       setIsNext(true);
-      console.log(isNext, isPrev);
     } else {
       setIsNext(false);
     }
     if (next == list.length) {
       setIsPrev(true);
-      console.log(isNext, isPrev);
     } else {
       setIsPrev(false);
     }
   }, [chapterData]);
   // useEffect(() => {}, [listChapter]);
   return (
-    <div className="bg-gray-900 min-h-screen">
-      <button className="bg-white  " onClick={apasa}>
-        Apasa
-      </button>
+    <div className="bg-gray-900 min-h-screen pt-2">
       <div className="container mx-auto ">
+        <div className="text-white flex text-xl justify-between p-3 m-2 tracking-widest shadow-cyan-500  border-2">
+          <p>
+            <Link to="/">Bird Reader </Link>- &gt;
+          </p>
+          <p>
+            <Link to={`/manga/${manga}`}>{manga.split("-")[1]}</Link> -&gt;
+          </p>
+          <p>
+            <Link to={`/manga/${manga}/${chapter}`}>{chapterSelected}</Link>
+          </p>
+        </div>
         <div className="comic-viewer ">
           <div className="flex justify-center space-x-4 ">
             <select
@@ -203,6 +206,17 @@ export default function Read() {
               Previous Chapter
             </button>
             <button
+              className={`px-2 rounded-lg text-white ${
+                loading ? "bg-red-500" : "bg-green-500"
+              }`}
+              onClick={setLoadImage}
+            >
+              Apasa
+            </button>
+            <button className="bg-white  rounded-lg px-2" onClick={loadImage}>
+              Afiseaza
+            </button>
+            <button
               disabled={isNext}
               onClick={nextChapter}
               className="btn btn-lg rounded-lg bg-gray-700 text-white hover:bg-gray-900 focus:ring-2 focus:ring-gray-600 px-4 py-2"
@@ -210,8 +224,8 @@ export default function Read() {
               Next Chapter
             </button>
           </div>
-          <div className="flex justify-center p-2 ">
-            <div className="grid grid-cols-auto-1 justify-center">
+          <div className="p-2 flex justify-center">
+            <div className="grid grid-cols-auto-1 w-1/2">
               {images &&
                 images.map((i, index) => (
                   <img key={index} src={i} alt={`Flash Comic Page`} />

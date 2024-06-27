@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase/config";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
-import { Link } from "react-router-dom";
 
 export default function Carousel() {
-  const [scrollPosition, setScrollPosition] = useState(-300);
+  const [scrollPosition, setScrollPosition] = useState(-450);
   const [popular, setPop] = useState([]);
   let reference = collection(db, "Lista Completa");
   const q = query(reference, orderBy("FirstRelease"), limit(10));
@@ -15,7 +14,9 @@ export default function Carousel() {
     query.forEach((doc) => {
       list.push(doc.data());
     });
-    setPop(list);
+    const List = list.map((l) => ({ ...l, Name: l.Name.slice(0, 30) }));
+    console.log(List);
+    setPop(List);
   };
   useEffect(() => {
     getPopular();
@@ -34,13 +35,13 @@ export default function Carousel() {
   const goToNext = () => {
     setScrollPosition((prevPosition) => {
       const newPosition = prevPosition + 300;
-      return newPosition >= 900 ? -300 : newPosition;
+      return newPosition >= 650 ? -300 : newPosition;
     });
   };
   const goToPrevious = () => {
     setScrollPosition((prevPosition) => {
       const newPosition = prevPosition - 300;
-      return newPosition >= 0 ? newPosition : 1500;
+      return newPosition >= 0 ? newPosition : 600;
     });
   };
   if (!popular) return <div>Loadind...</div>;
@@ -55,13 +56,13 @@ export default function Carousel() {
       >
         {popular &&
           popular.map((pop, index) => (
-            <div className="mr-4 ">
+            <div className="mr-4 " key={Math.random()}>
               <a href={`/manga/${pop.Id}`}>
                 <img
-                  key={index}
+                  key={Math.random()}
                   src={pop.ImageUrl}
                   alt={`Slide ${index + 1}`}
-                  className=" h-56 w-80  max-w-xs rounded-lg shadow-lg"
+                  className=" h-60 w-80  max-w-xs rounded-lg shadow-lg"
                 />
                 <div className="bg-black text-center text-semibold text-xl bg-opacity-50 text-white p-2">
                   {pop.Name}

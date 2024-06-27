@@ -7,7 +7,7 @@ import ShowPanel from "./ShowPanel";
 import "./tabs.css";
 import useUsers from "../hooks/useUsers";
 import { useAuthContext } from "../Auth/useAuthContext";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import UpdateManga from "./UpdateManga";
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -20,7 +20,6 @@ export default function AdminPanel() {
   }, []);
   useEffect(() => {
     if (!user) return;
-    console.log(user.admin);
   }, [user]);
   if (!currentUser) return navigate("/");
   if (!user.admin) return navigate("/");

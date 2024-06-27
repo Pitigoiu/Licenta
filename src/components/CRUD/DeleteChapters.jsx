@@ -1,16 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { db, storage } from "../../firebase/config";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  onSnapshot,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, deleteDoc, doc, onSnapshot } from "firebase/firestore";
 import { deleteObject, listAll, ref } from "firebase/storage";
-import useBook from "../hooks/useBook";
 
 export default function DeleteChapter() {
   const [chapter, setChapter] = useState("");
@@ -20,7 +11,7 @@ export default function DeleteChapter() {
   const [idBook, setIdBook] = useState();
   const [idChapter, setIdChapter] = useState();
   const [bookName, setBookName] = useState([]);
-  const { data } = useBook();
+
   const handleChapter = (e) => {
     setChapter(e.target.value);
     setIdChapter(chapters.at(e.target.selected).Id);
@@ -46,7 +37,14 @@ export default function DeleteChapter() {
     });
   };
   useEffect(() => {
-    setBookName(data);
+    let ref1 = collection(db, "Lista Completa");
+    let List = [];
+    onSnapshot(ref1, (snap) => {
+      snap.docs.forEach((doc) => {
+        List.push(doc.data());
+      });
+      setBookName(List);
+    });
   }, []);
   useEffect(() => {
     if (!bookName) return;
